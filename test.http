@@ -1,0 +1,62 @@
+### Получить все данные за последние 1000 секунд
+GET http://localhost:8080/data/get_all?seconds=1000
+Accept: application/json
+
+### Получить новые обновления FHR
+GET http://localhost:8080/data/fhr/updates
+Accept: application/json
+
+### Получить новые обновления UC
+GET http://localhost:8080/data/uc/updates
+Accept: application/json
+
+### Отправить BPM данные
+POST http://localhost:8080/api/v1/bpm
+Content-Type: application/json
+
+[
+  {
+    "bpm": 120.5
+  },
+  {
+    "bpm": 115.3
+  }
+]
+
+### Отправить TRAC данные
+POST http://localhost:8080/api/v1/trac
+Content-Type: application/json
+
+[
+  {
+    "trac": 75.2
+  },
+  {
+    "trac": 68.9
+  }
+]
+
+### Пример ответа на GET /data/get_all
+# {
+#   "fhr": [
+#     {
+#       "time": "2025-01-15T08:00:00.000000000Z",
+#       "d": 150
+#     },
+#     {
+#       "time": "2025-01-15T08:00:01.000000000Z",
+#       "d": 155
+#     }
+#   ],
+#   "uc": [
+#     {
+#       "time": "2025-01-15T08:00:00.000000000Z",
+#       "d": 22
+#     },
+#     {
+#       "time": "2025-01-15T08:00:01.000000000Z",
+#       "d": 26
+#     }
+#   ],
+#   "last_chunk": true
+# }

@@ -1,0 +1,10 @@
+bpm:
+  mean: 115
+  count: 5000
+  endpoint: "/api/v1/bpm"
+  freq_hz: 2
+trac:
+  mean: 70
+  count: 5000
+  endpoint: "/api/v1/trac"
+  freq_hz: 2

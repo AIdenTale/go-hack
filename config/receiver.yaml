@@ -1,0 +1,13 @@
+Postgres:
+  Host: postgres
+  Port: 5432
+  User: gohack
+  Password: gohack
+  DBname: gohack
+  sslmode: disable
+
+echo:
+  address: ":8080"
+
+logger:
+  level: "info"
