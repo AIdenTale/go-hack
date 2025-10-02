@@ -11,3 +11,7 @@ echo:
 
 logger:
   level: "info"
+
+ml:
+  base_url: "http://ml:8000"  # URL ML сервиса в docker-compose сети
+  update_interval: 10  # интервал обновления в секундах

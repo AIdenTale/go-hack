@@ -9,9 +9,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
       - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./migrations/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./migrations/002_ml_predictions.sql:/docker-entrypoint-initdb.d/002_ml_predictions.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gohack"]
       interval: 5s
@@ -25,6 +24,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ml:
+        condition: service_started
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -46,6 +47,18 @@ services:
       RECEIVER_URL: http://receiver:8080
     volumes:
       - ./config:/app/config
+
+  ml:
+    build:
+      context: ./i_moscow_hack/pythonProject
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   pgdata:

@@ -8,6 +8,7 @@ package app
 
 import (
 	"github.com/AIdenTale/go-hack.git/internal/app/config"
+	"github.com/AIdenTale/go-hack.git/internal/repository"
 	"github.com/AIdenTale/go-hack.git/internal/service"
 	"github.com/AIdenTale/go-hack.git/pkg/db"
 	"github.com/AIdenTale/go-hack.git/pkg/logger"
@@ -16,7 +17,6 @@ import (
 
 // Injectors from wire.go:
 
-// InitializeApp инициализирует зависимости приложения через wire.
 func InitializeApp(configPath string) (*App, error) {
 	configConfig, err := config.LoadConfig(configPath)
 	if err != nil {
@@ -34,7 +34,10 @@ func InitializeApp(configPath string) (*App, error) {
 	pregnantDatService := service.NewPregnantDatService(pregnantDatPostgresRepository)
 	dataPostgresRepository := db.NewDataPostgresRepository(postgres)
 	dataService := service.NewDataService(dataPostgresRepository)
-	app := newApp(configConfig, zapLogger, postgres, pregnantDatService, dataService)
+	mlClient := provideMLClient(configConfig)
+	mlRepository := provideMLRepository(postgres)
+	mlService := provideMLService(dataService, mlClient, mlRepository)
+	app := newApp(configConfig, zapLogger, postgres, pregnantDatService, dataService, mlService)
 	return app, nil
 }
 
@@ -42,13 +45,15 @@ func InitializeApp(configPath string) (*App, error) {
 
 func newApp(cfg *config.Config, logger2 *zap.Logger, pg *db.Postgres,
 	pregnantService *service.PregnantDatService,
-	dataService *service.DataService) *App {
+	dataService *service.DataService,
+	mlService *service.MLService) *App {
 	return &App{
 		Config:             cfg,
 		Logger:             logger2,
 		Postgres:           pg,
 		PregnantDatService: pregnantService,
 		DataService:        dataService,
+		MLService:          mlService,
 	}
 }
 
@@ -60,4 +65,25 @@ type App struct {
 	Postgres           *db.Postgres
 	PregnantDatService *service.PregnantDatService
 	DataService        *service.DataService
+	MLService          *service.MLService
+}
+
+// InitializeApp инициализирует зависимости приложения через wire.
+// provideMLClient создает клиент для ML сервиса
+func provideMLClient(cfg *config.Config) *service.MLClient {
+	return service.NewMLClient(cfg.ML.BaseURL)
+}
+
+// provideMLRepository создает ML репозиторий
+func provideMLRepository(pg *db.Postgres) repository.MLRepository {
+	return db.NewMLPostgresRepository(pg)
+}
+
+// Provide MLService
+func provideMLService(
+	dataService *service.DataService,
+	mlClient *service.MLClient,
+	mlRepo repository.MLRepository,
+) *service.MLService {
+	return service.NewMLService(dataService, mlClient, mlRepo)
 }

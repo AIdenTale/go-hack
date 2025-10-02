@@ -60,3 +60,28 @@ Content-Type: application/json
 #   ],
 #   "last_chunk": true
 # }
+
+### Получить последнюю ML-предикцию
+GET http://localhost:8080/data/predicts
+Accept: application/json
+
+### Пример ответа на GET /data/predicts
+# {
+#   "time_recorded": "2025-01-15T08:10:00Z",
+#   "prediction": 1,
+#   "probability": 0.83,
+#   "median_fhr_value": 145.2,
+#   "median_fhr_impact": 0.12,
+#   "mean_fhr_value": 146.7,
+#   "mean_fhr_impact": 0.08,
+#   "cross_corr_fhr_uc_value": 0.35,
+#   "cross_corr_fhr_uc_impact": 0.15,
+#   "mean_fhr": 147.1,
+#   "baseline_fhr": 140.0,
+#   "min_fhr": 120.0,
+#   "max_fhr": 170.0,
+#   "accelerations": 3,
+#   "decelerations": 1,
+#   "mean_uc": 60.5,
+#   "max_uc": 85.0
+# }

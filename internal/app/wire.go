@@ -15,13 +15,15 @@ import (
 
 func newApp(cfg *config.Config, logger *zap.Logger, pg *db.Postgres, 
 	pregnantService *service.PregnantDatService,
-	dataService *service.DataService) *App {
+	dataService *service.DataService,
+	mlService *service.MLService) *App {
 	return &App{
 		Config:             cfg,
 		Logger:             logger,
 		Postgres:           pg,
 		PregnantDatService: pregnantService,
 		DataService:        dataService,
+		MLService:          mlService,
 	}
 }
 
@@ -33,9 +35,29 @@ type App struct {
 	Postgres           *db.Postgres
 	PregnantDatService *service.PregnantDatService
 	DataService        *service.DataService
+	MLService          *service.MLService
 }
 
 // InitializeApp инициализирует зависимости приложения через wire.
+// provideMLClient создает клиент для ML сервиса
+func provideMLClient(cfg *config.Config) *service.MLClient {
+	return service.NewMLClient(cfg.ML.BaseURL)
+}
+
+// provideMLRepository создает ML репозиторий
+func provideMLRepository(pg *db.Postgres) repository.MLRepository {
+	return db.NewMLPostgresRepository(pg)
+}
+
+// Provide MLService
+func provideMLService(
+	dataService *service.DataService,
+	mlClient *service.MLClient,
+	mlRepo repository.MLRepository,
+) *service.MLService {
+	return service.NewMLService(dataService, mlClient, mlRepo)
+}
+
 func InitializeApp(configPath string) (*App, error) {
 	wire.Build(
 		config.LoadConfig,
@@ -48,6 +70,9 @@ func InitializeApp(configPath string) (*App, error) {
 		wire.Bind(new(repository.DataRepository), new(*db.DataPostgresRepository)),
 		service.NewPregnantDatService,
 		service.NewDataService,
+		provideMLClient,
+		provideMLRepository,
+		provideMLService,
 	)
 	return nil, nil
 }

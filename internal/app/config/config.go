@@ -30,6 +30,7 @@ type Config struct {
 	Postgres PostgresConfig
 	Echo     EchoConfig
 	Logger   LoggerConfig
+	ML       MLConfig
 }
 
 // LoadConfig загружает конфигурацию из YAML-файла по указанному пути.

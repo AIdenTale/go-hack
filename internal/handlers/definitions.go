@@ -17,7 +17,7 @@ func Register(app *app.App, mux *echo.Echo) {
 	registerTrac(v1, app.PregnantDatService)
 
 	dataGroup := mux.Group("/data")
-	registerData(dataGroup, app.DataService)
+	registerData(dataGroup, app.DataService, app.MLService)
 }
 
 // registerBPM регистрирует endpoint'ы внутри группы /api/v1.
@@ -31,9 +31,12 @@ func registerTrac(mux *echo.Group, service *service.PregnantDatService) {
 	mux.POST("/trac", handler.Trac)
 }
 
-func registerData(mux *echo.Group, service *service.DataService) {
-	handler := views.NewDataHandler(service)
-	mux.GET("/get_all", handler.GetAllData)
-	mux.GET("/fhr/updates", handler.GetFHRUpdates)
-	mux.GET("/uc/updates", handler.GetUCUpdates)
+func registerData(mux *echo.Group, dataService *service.DataService, mlService *service.MLService) {
+	dataHandler := views.NewDataHandler(dataService)
+	mux.GET("/get_all", dataHandler.GetAllData)
+	mux.GET("/fhr/updates", dataHandler.GetFHRUpdates)
+	mux.GET("/uc/updates", dataHandler.GetUCUpdates)
+
+	mlHandler := views.NewMLHandler(mlService)
+	mux.GET("/predicts", mlHandler.GetPredicts)
 }
